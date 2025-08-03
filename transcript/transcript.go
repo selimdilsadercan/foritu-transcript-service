@@ -242,24 +242,56 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 		// Clean up the semester text - remove header lines and summary lines
 		lines := strings.Split(semesterText, "\n")
 		var cleanedLines []string
+		
+		// Check if this is a Yaz Okulu semester - they have different formatting
+		isYazOkulu := strings.Contains(semester, "Yaz Okulu")
+		
 		for _, line := range lines {
-			// Skip header lines and summary lines, but be more selective
-			if strings.Contains(line, "Dersin Statüsü") || 
-			   strings.Contains(line, "Öğretim Dili") || 
-			   strings.Contains(line, "T U UK") || 
-			   strings.Contains(line, "AKTS") || 
-			   strings.Contains(line, "Not") || 
-			   strings.Contains(line, "Puan") || 
-			   strings.Contains(line, "Açıklama") || 
-			   strings.Contains(line, "DNO:") || 
-			   strings.Contains(line, "GNO:") || 
-			   strings.Contains(line, "TUK:") || 
-			   strings.Contains(line, "TAKTS:") || 
-			   strings.Contains(line, "DSD:") || 
-			   strings.Contains(line, "Başarılı") || 
-			   strings.Contains(line, "Pass") {
-				continue
+			// For Yaz Okulu semesters, be much more conservative with filtering
+			if isYazOkulu {
+				// For Yaz Okulu, only skip the most obvious header lines and keep everything else
+				if strings.Contains(line, "Dersin Statüsü") || 
+				   strings.Contains(line, "Öğretim Dili") || 
+				   strings.Contains(line, "T U UK") || 
+				   strings.Contains(line, "AKTS") || 
+				   strings.Contains(line, "Not") || 
+				   strings.Contains(line, "Puan") || 
+				   strings.Contains(line, "Açıklama") ||
+				   strings.Contains(line, "Öğrenci No") ||
+				   strings.Contains(line, "T.C. Kimlik No") ||
+				   strings.Contains(line, "Adı") ||
+				   strings.Contains(line, "Doğum Tarihi") ||
+				   strings.Contains(line, "Soyadı") ||
+				   strings.Contains(line, "İSTANBUL TEKNİK ÜNİVERSİTESİ") ||
+				   strings.Contains(line, "NOT DÖKÜM BELGESİ") ||
+				   strings.Contains(line, "Belge Tarihi") ||
+				   strings.Contains(line, "YOKTR") ||
+				   strings.Contains(line, "www.turkiye.gov.tr") ||
+				   strings.Contains(line, "Bu belgenin doğruluğunu") ||
+				   strings.Contains(line, "SON SATIR") ||
+				   strings.Contains(line, "Bu satırdan sonra") {
+					continue
+				}
+			} else {
+				// For regular semesters, use the original filtering logic
+				if strings.Contains(line, "Dersin Statüsü") || 
+				   strings.Contains(line, "Öğretim Dili") || 
+				   strings.Contains(line, "T U UK") || 
+				   strings.Contains(line, "AKTS") || 
+				   strings.Contains(line, "Not") || 
+				   strings.Contains(line, "Puan") || 
+				   strings.Contains(line, "Açıklama") || 
+				   strings.Contains(line, "DNO:") || 
+				   strings.Contains(line, "GNO:") || 
+				   strings.Contains(line, "TUK:") || 
+				   strings.Contains(line, "TAKTS:") || 
+				   strings.Contains(line, "DSD:") || 
+				   strings.Contains(line, "Başarılı") || 
+				   strings.Contains(line, "Pass") {
+					continue
+				}
 			}
+			
 			if strings.TrimSpace(line) == "" {
 				continue
 			}
@@ -287,7 +319,15 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 			}
 		}
 		
-		cleanedText := strings.Join(cleanedLines, "\n")
+		// For Yaz Okulu semesters, if still no content, use raw text
+		var cleanedText string
+		if len(cleanedLines) == 0 && isYazOkulu {
+			debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - No content after cleaning, using raw text\n", semester))
+			// Use raw text for Yaz Okulu if cleaning removed everything
+			cleanedText = semesterText
+		} else {
+			cleanedText = strings.Join(cleanedLines, "\n")
+		}
 		
 		// Debug: Show the cleaned text for this semester
 		debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Cleaned text: '%s'\n", semester, cleanedText))
@@ -317,13 +357,44 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 			courseMatches = courseCodePattern.FindAllStringIndex(cleanedText, -1)
 		}
 		
+		// For Yaz Okulu semesters, if still no matches, try searching in the raw text
+		usingRawText := false
+		if len(courseMatches) == 0 && isYazOkulu {
+			debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - No course matches in cleaned text, trying raw text\n", semester))
+			// Try to find course patterns in the raw semester text for Yaz Okulu
+			courseCodePattern = regexp.MustCompile(`([A-Z]{3}\s+\d{3}[A-Z]?)`)
+			courseMatches = courseCodePattern.FindAllStringIndex(semesterText, -1)
+			debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Found %d course matches in raw text\n", semester, len(courseMatches)))
+			if len(courseMatches) > 0 {
+				usingRawText = true
+			}
+			
+			// If still no matches, try a more flexible pattern for Yaz Okulu
+			if len(courseMatches) == 0 {
+				debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Trying more flexible pattern for Yaz Okulu\n", semester))
+				// Try a more flexible pattern that might catch different formats
+				flexiblePattern := regexp.MustCompile(`([A-Z]{2,4}\s+\d{2,4}[A-Z]?)`)
+				courseMatches = flexiblePattern.FindAllStringIndex(semesterText, -1)
+				debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Found %d course matches with flexible pattern\n", semester, len(courseMatches)))
+				if len(courseMatches) > 0 {
+					usingRawText = true
+				}
+			}
+		}
+		
 		debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Found %d course matches with complex pattern\n", semester, len(courseMatches)))
 		
 		// Debug: Check if course patterns were found
 		if len(courseMatches) == 0 {
 			// Try a simpler course pattern
 			simpleCoursePattern := regexp.MustCompile(`[A-Z]{3}\s+\d{3}[A-Z]*`)
-			simpleCourseMatches := simpleCoursePattern.FindAllStringIndex(cleanedText, -1)
+			var textToSearch string
+			if usingRawText {
+				textToSearch = semesterText
+			} else {
+				textToSearch = cleanedText
+			}
+			simpleCourseMatches := simpleCoursePattern.FindAllStringIndex(textToSearch, -1)
 			debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Found %d course matches with simple pattern\n", semester, len(simpleCourseMatches)))
 			if len(simpleCourseMatches) > 0 {
 				// Use the simpler pattern results
@@ -336,7 +407,13 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 		
 		for j, courseMatch := range courseMatches {
 			// Extract the course code, removing asterisk and extra spaces
-			rawCode := strings.TrimSpace(strings.ReplaceAll(cleanedText[courseMatch[0]:courseMatch[1]], "*", ""))
+			var sourceText string
+			if usingRawText {
+				sourceText = semesterText
+			} else {
+				sourceText = cleanedText
+			}
+			rawCode := strings.TrimSpace(strings.ReplaceAll(sourceText[courseMatch[0]:courseMatch[1]], "*", ""))
 			
 			// Debug: Show what was matched
 			debugInfo.WriteString(fmt.Sprintf("DEBUG: Course match %d: rawCode='%s', match indices=[%d,%d]\n", j, rawCode, courseMatch[0], courseMatch[1]))
@@ -376,10 +453,26 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 			if j+1 < len(courseMatches) {
 				endIdx = courseMatches[j+1][0]
 			} else {
-				endIdx = len(cleanedText)
+				if usingRawText {
+					endIdx = len(semesterText)
+				} else {
+					endIdx = len(cleanedText)
+				}
 			}
 			
-			courseText := strings.TrimSpace(cleanedText[startIdx:endIdx])
+			// For Yaz Okulu semesters, if we found matches in raw text, use raw text
+			var courseText string
+			if usingRawText {
+				// Use raw semester text for extraction
+				if j+1 < len(courseMatches) {
+					endIdx = courseMatches[j+1][0]
+				} else {
+					endIdx = len(semesterText)
+				}
+				courseText = strings.TrimSpace(semesterText[startIdx:endIdx])
+			} else {
+				courseText = strings.TrimSpace(cleanedText[startIdx:endIdx])
+			}
 			
 			debugInfo.WriteString(fmt.Sprintf("DEBUG: Processing course code '%s', course text length: %d\n", code, len(courseText)))
 			
@@ -391,10 +484,25 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 				"YOKTR4QWO3AEMVO0BT", "Ders kodunun başında * olan dersler",
 			}
 			
-			for _, indicator := range footerIndicators {
-				if idx := strings.Index(courseText, indicator); idx != -1 {
-					courseText = strings.TrimSpace(courseText[:idx])
-					break
+			// For Yaz Okulu semesters, be more conservative with footer cleaning
+			if !isYazOkulu {
+				for _, indicator := range footerIndicators {
+					if idx := strings.Index(courseText, indicator); idx != -1 {
+						courseText = strings.TrimSpace(courseText[:idx])
+						break
+					}
+				}
+			} else {
+				// For Yaz Okulu, only remove very obvious footer content
+				strictFooterIndicators := []string{
+					"www.turkiye.gov.tr", "NOT DÖKÜM BELGESİ", 
+					"YOKTR4QWO3AEMVO0BT", "Ders kodunun başında * olan dersler",
+				}
+				for _, indicator := range strictFooterIndicators {
+					if idx := strings.Index(courseText, indicator); idx != -1 {
+						courseText = strings.TrimSpace(courseText[:idx])
+						break
+					}
 				}
 			}
 			
