@@ -33,6 +33,7 @@ const BROWSER = typeof globalThis === "object" && ("window" in globalThis);
  */
 export default class Client {
     public readonly health: health.ServiceClient
+    public readonly plan: plan.ServiceClient
     public readonly transcript: transcript.ServiceClient
     private readonly options: ClientOptions
     private readonly target: string
@@ -49,6 +50,7 @@ export default class Client {
         this.options = options ?? {}
         const base = new BaseClient(this.target, this.options)
         this.health = new health.ServiceClient(base)
+        this.plan = new plan.ServiceClient(base)
         this.transcript = new transcript.ServiceClient(base)
     }
 
@@ -101,6 +103,108 @@ export namespace health {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("GET", `/health`)
             return await resp.json() as HealthResponse
+        }
+    }
+}
+
+export namespace plan {
+    /**
+     * Course represents a course in the plan
+     */
+    export interface Course {
+        type: string
+        code: string
+        name: string
+        category: string
+        options: string[]
+    }
+
+    /**
+     * DeletePlanRequest represents the request for deleting a plan
+     */
+    export interface DeletePlanRequest {
+        userId: string
+    }
+
+    /**
+     * DeletePlanResponse represents the response for deleting a plan
+     */
+    export interface DeletePlanResponse {
+        success: boolean
+        error: string
+    }
+
+    /**
+     * GetPlanRequest represents the request for getting a plan
+     */
+    export interface GetPlanRequest {
+        userId: string
+    }
+
+    /**
+     * GetPlanResponse represents the response for getting a plan
+     */
+    export interface GetPlanResponse {
+        plan: Plan
+        error: string
+    }
+
+    /**
+     * Plan represents a user's academic plan
+     */
+    export interface Plan {
+        id: number
+        userId: string
+        planJson: PlanData
+    }
+
+    /**
+     * PlanData represents the structure of the plan JSON - array of semesters (each semester is an array of courses)
+     */
+    export type PlanData = Course[][]
+
+    /**
+     * StorePlanRequest represents the request body for storing a plan
+     */
+    export interface StorePlanRequest {
+        userId: string
+        planJson: PlanData
+    }
+
+    /**
+     * StorePlanResponse represents the response for storing a plan
+     */
+    export interface StorePlanResponse {
+        success: boolean
+        error: string
+    }
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.DeletePlan = this.DeletePlan.bind(this)
+            this.GetPlan = this.GetPlan.bind(this)
+            this.StorePlan = this.StorePlan.bind(this)
+        }
+
+        public async DeletePlan(params: DeletePlanRequest): Promise<DeletePlanResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/delete-plan`, JSON.stringify(params))
+            return await resp.json() as DeletePlanResponse
+        }
+
+        public async GetPlan(params: GetPlanRequest): Promise<GetPlanResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/get-plan`, JSON.stringify(params))
+            return await resp.json() as GetPlanResponse
+        }
+
+        public async StorePlan(params: StorePlanRequest): Promise<StorePlanResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/store-plan`, JSON.stringify(params))
+            return await resp.json() as StorePlanResponse
         }
     }
 }
