@@ -1,0 +1,373 @@
+[
+  {
+    "semester": "2021-2022 Bahar Dönemi",
+    "code": "ATA 121",
+    "name": "Atatürk İlk & İnkılap Trh I",
+    "credits": "0",
+    "grade": "VF"
+  },
+  {
+    "semester": "2021-2022 Bahar Dönemi",
+    "code": "BLG 102E",
+    "name": "Intr to Sci&Eng Comp)",
+    "credits": "4",
+    "grade": "CC"
+  },
+  {
+    "semester": "2021-2022 Bahar Dönemi",
+    "code": "EKO 201E",
+    "name": "Economics",
+    "credits": "3",
+    "grade": "DD"
+  },
+  {
+    "semester": "2021-2022 Bahar Dönemi",
+    "code": "FIZ 102E",
+    "name": "Physics II",
+    "credits": "3",
+    "grade": "VF"
+  },
+  {
+    "semester": "2021-2022 Bahar Dönemi",
+    "code": "ATA 122",
+    "name": "Atatürk İlk & İnkılap Trh II",
+    "credits": "0",
+    "grade": "BL"
+  },
+  {
+    "semester": "2021-2022 Bahar Dönemi",
+    "code": "FIZ 102EL",
+    "name": "Physics II Laboratory",
+    "credits": "1",
+    "grade": "BA"
+  },
+  {
+    "semester": "2021-2022 Bahar Dönemi",
+    "code": "ING 100",
+    "name": "EAP Through Global Goals",
+    "credits": "3",
+    "grade": "AA"
+  },
+  {
+    "semester": "2021-2022 Bahar Dönemi",
+    "code": "MAT 103E",
+    "name": "Mathematics I",
+    "credits": "4",
+    "grade": "BB"
+  },
+  {
+    "semester": "2021-2022 Bahar Dönemi",
+    "code": "TUR 122",
+    "name": "Türk Dili II",
+    "credits": "0",
+    "grade": "BL"
+  },
+  {
+    "semester": "2021-2022 Yaz Okulu",
+    "code": "FIZ 101E",
+    "name": "Physics I",
+    "credits": "3",
+    "grade": "FF"
+  },
+  {
+    "semester": "2022-2023 Güz Dönemi",
+    "code": "HUK 214",
+    "name": "Teknolojik Yeniliklerin Korun.",
+    "credits": "3",
+    "grade": "FF"
+  },
+  {
+    "semester": "2022-2023 Güz Dönemi",
+    "code": "ING 112A",
+    "name": "Basics of Academic Writing",
+    "credits": "2",
+    "grade": "VF"
+  },
+  {
+    "semester": "2022-2023 Güz Dönemi",
+    "code": "ATA 121",
+    "name": "Atatürk İlk & İnkılap Trh I",
+    "credits": "0",
+    "grade": "BL"
+  },
+  {
+    "semester": "2022-2023 Güz Dönemi",
+    "code": "BLG 113E",
+    "name": "Intr.toComp.Eng.and Ethics",
+    "credits": "1.5",
+    "grade": "AA"
+  },
+  {
+    "semester": "2022-2023 Güz Dönemi",
+    "code": "BLG 463E",
+    "name": "Innov. Leadership in Comp.Eng.",
+    "credits": "3",
+    "grade": "BB"
+  },
+  {
+    "semester": "2022-2023 Güz Dönemi",
+    "code": "FIZ 101EL",
+    "name": "Physics I Laboratory",
+    "credits": "1",
+    "grade": "AA"
+  },
+  {
+    "semester": "2022-2023 Güz Dönemi",
+    "code": "FIZ 101E",
+    "name": "Physics I",
+    "credits": "3",
+    "grade": "BA"
+  },
+  {
+    "semester": "2022-2023 Güz Dönemi",
+    "code": "TUR 121",
+    "name": "Türk Dili I",
+    "credits": "0",
+    "grade": "BL"
+  },
+  {
+    "semester": "2022-2023 Bahar Dönemi",
+    "code": "FIZ 102E",
+    "name": "Physics II",
+    "credits": "3",
+    "grade": "FF"
+  },
+  {
+    "semester": "2022-2023 Bahar Dönemi",
+    "code": "ING 112A",
+    "name": "Basics of Academic Writing",
+    "credits": "2",
+    "grade": "FF"
+  },
+  {
+    "semester": "2022-2023 Bahar Dönemi",
+    "code": "BLG 102E",
+    "name": "Intr to Sci&Eng Comp)",
+    "credits": "4",
+    "grade": "AA"
+  },
+  {
+    "semester": "2022-2023 Bahar Dönemi",
+    "code": "BLG 112E",
+    "name": "Discrete Mathematics",
+    "credits": "3",
+    "grade": "BB"
+  },
+  {
+    "semester": "2022-2023 Bahar Dönemi",
+    "code": "DAN 102",
+    "name": "Girişimcilik & Kariyer Danış.",
+    "credits": "0",
+    "grade": "BL"
+  },
+  {
+    "semester": "2022-2023 Bahar Dönemi",
+    "code": "EKO 201E",
+    "name": "Economics",
+    "credits": "3",
+    "grade": "CC"
+  },
+  {
+    "semester": "2022-2023 Bahar Dönemi",
+    "code": "MAT 104E",
+    "name": "Mathematics II",
+    "credits": "4",
+    "grade": "DC"
+  },
+  {
+    "semester": "2023-2024 Güz Dönemi",
+    "code": "FIZ 102E",
+    "name": "Physics II",
+    "credits": "3",
+    "grade": "VF"
+  },
+  {
+    "semester": "2023-2024 Güz Dönemi",
+    "code": "BLG 210E",
+    "name": "Engineering Mathematics",
+    "credits": "4",
+    "grade": "CC"
+  },
+  {
+    "semester": "2023-2024 Güz Dönemi",
+    "code": "BLG 223E",
+    "name": "Data Structures",
+    "credits": "3.5",
+    "grade": "CB+"
+  },
+  {
+    "semester": "2023-2024 Güz Dönemi",
+    "code": "BLG 231E",
+    "name": "Digital Circuits",
+    "credits": "3",
+    "grade": "DC+"
+  },
+  {
+    "semester": "2023-2024 Güz Dönemi",
+    "code": "HUK 214",
+    "name": "Teknolojik Yeniliklerin Korun.",
+    "credits": "3",
+    "grade": "BA+"
+  },
+  {
+    "semester": "2023-2024 Güz Dönemi",
+    "code": "MAT 281E",
+    "name": "Linear Algebra and Applicat.",
+    "credits": "3",
+    "grade": "CB+"
+  },
+  {
+    "semester": "2023-2024 Bahar Dönemi",
+    "code": "BLG 222E",
+    "name": "Computer Organization",
+    "credits": "3",
+    "grade": "FF"
+  },
+  {
+    "semester": "2023-2024 Bahar Dönemi",
+    "code": "BLG 202E",
+    "name": "Numerical Methods in CE",
+    "credits": "3",
+    "grade": "BB"
+  },
+  {
+    "semester": "2023-2024 Bahar Dönemi",
+    "code": "BLG 252E",
+    "name": "Object Oriented Programming",
+    "credits": "3",
+    "grade": "CB"
+  },
+  {
+    "semester": "2023-2024 Bahar Dönemi",
+    "code": "BLG 311E",
+    "name": "Formal Languages and Automata",
+    "credits": "3",
+    "grade": "DC+"
+  },
+  {
+    "semester": "2023-2024 Bahar Dönemi",
+    "code": "BLG 242E",
+    "name": "Logic Circuits Laboratory",
+    "credits": "1",
+    "grade": "CC+"
+  },
+  {
+    "semester": "2023-2024 Bahar Dönemi",
+    "code": "MAT 271E",
+    "name": "Probability and Statistics",
+    "credits": "3",
+    "grade": "BA"
+  },
+  {
+    "semester": "2024-2025 Güz Dönemi",
+    "code": "BLG 454E",
+    "name": "Learning From Data",
+    "credits": "3",
+    "grade": "FF"
+  },
+  {
+    "semester": "2024-2025 Güz Dönemi",
+    "code": "BBF 101E",
+    "name": "Introduction to Information Systems",
+    "credits": "2",
+    "grade": "BA"
+  },
+  {
+    "semester": "2024-2025 Güz Dönemi",
+    "code": "BLG 212E",
+    "name": "Microprocessor Systems",
+    "credits": "3",
+    "grade": "DD+"
+  },
+  {
+    "semester": "2024-2025 Güz Dönemi",
+    "code": "BLG 317E",
+    "name": "Database Systems",
+    "credits": "3",
+    "grade": "BA"
+  },
+  {
+    "semester": "2024-2025 Güz Dönemi",
+    "code": "BLG 335E",
+    "name": "Analysis of Algorithms I",
+    "credits": "3",
+    "grade": "BB"
+  },
+  {
+    "semester": "2024-2025 Güz Dönemi",
+    "code": "EHB 222E",
+    "name": "Introduction to Electronics",
+    "credits": "3",
+    "grade": "FF"
+  },
+  {
+    "semester": "2024-2025 Bahar Dönemi",
+    "code": "BLG 454E",
+    "name": "Learning From Data",
+    "credits": "3",
+    "grade": "VF"
+  },
+  {
+    "semester": "2024-2025 Bahar Dönemi",
+    "code": "BLG 222E",
+    "name": "Computer Organization",
+    "credits": "3",
+    "grade": "DC+"
+  },
+  {
+    "semester": "2024-2025 Bahar Dönemi",
+    "code": "BLG 312E",
+    "name": "Computer Operating Systems",
+    "credits": "3",
+    "grade": "DC"
+  },
+  {
+    "semester": "2024-2025 Bahar Dönemi",
+    "code": "BLG 448E",
+    "name": "Project Management in Eng.",
+    "credits": "3",
+    "grade": "CC"
+  },
+  {
+    "semester": "2024-2025 Bahar Dönemi",
+    "code": "BLG 354E",
+    "name": "Signal&Systems for Comp.Eng.",
+    "credits": "3",
+    "grade": "DD"
+  },
+  {
+    "semester": "2024-2025 Bahar Dönemi",
+    "code": "BLG 336E",
+    "name": "Analysis of Algorithms II",
+    "credits": "3",
+    "grade": "DC+"
+  },
+  {
+    "semester": "2024-2025 Bahar Dönemi",
+    "code": "FIZ 102E",
+    "name": "Physics II",
+    "credits": "3",
+    "grade": "CB"
+  },
+  {
+    "semester": "2024-2025 Bahar Dönemi",
+    "code": "ING 112A",
+    "name": "Basics of Academic Writing",
+    "credits": "2",
+    "grade": "AA"
+  },
+  {
+    "semester": "2024-2025 Yaz Okulu",
+    "code": "BLG 322E",
+    "name": "Computer Architecture",
+    "credits": "3",
+    "grade": "--"
+  },
+  {
+    "semester": "2024-2025 Yaz Okulu",
+    "code": "MAL 201E",
+    "name": "Materials Science",
+    "credits": "3",
+    "grade": "--"
+  }
+]
