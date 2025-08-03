@@ -107,6 +107,48 @@ export namespace health {
 
 export namespace transcript {
     /**
+     * Course represents a single course from the transcript
+     */
+    export interface Course {
+        semester: string
+        code: string
+        name: string
+        credits: string
+        grade: string
+    }
+
+    export interface DeleteTranscriptResponse {
+        message: string
+        userId: string
+    }
+
+    export interface GetTranscriptResponse {
+        transcript: Transcript
+    }
+
+    export interface ListTranscriptsResponse {
+        transcripts: Transcript[]
+        count: number
+    }
+
+    /**
+     * ParseAndStoreTranscriptRequest represents the request for parsing and storing a transcript
+     */
+    export interface ParseAndStoreTranscriptRequest {
+        userId: string
+        "pdf_base64": string
+    }
+
+    /**
+     * ParseAndStoreTranscriptResponse represents the response
+     */
+    export interface ParseAndStoreTranscriptResponse {
+        transcript: Transcript
+        error: string
+        debug: string
+    }
+
+    /**
      * ParseTranscriptRequest represents the request body
      */
     export interface ParseTranscriptRequest {
@@ -126,6 +168,28 @@ export namespace transcript {
     }
 
     /**
+     * Request and Response types
+     */
+    export interface StoreTranscriptRequest {
+        userId: string
+        courses: Course[]
+    }
+
+    export interface StoreTranscriptResponse {
+        message: string
+        userId: string
+    }
+
+    /**
+     * Transcript represents a user's transcript with courses
+     */
+    export interface Transcript {
+        id: number
+        userId: string
+        courses: Course[]
+    }
+
+    /**
      * TranscriptCourse represents a single course in the transcript
      */
     export interface TranscriptCourse {
@@ -136,18 +200,69 @@ export namespace transcript {
         grade: string
     }
 
+    export interface UpdateTranscriptRequest {
+        courses: Course[]
+    }
+
+    export interface UpdateTranscriptResponse {
+        message: string
+        userId: string
+    }
+
     export class ServiceClient {
         private baseClient: BaseClient
 
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
+            this.DeleteTranscript = this.DeleteTranscript.bind(this)
+            this.GetTranscript = this.GetTranscript.bind(this)
+            this.ListAllTranscripts = this.ListAllTranscripts.bind(this)
+            this.ParseAndStoreTranscript = this.ParseAndStoreTranscript.bind(this)
             this.ParseTranscript = this.ParseTranscript.bind(this)
+            this.StoreTranscript = this.StoreTranscript.bind(this)
+            this.UpdateTranscript = this.UpdateTranscript.bind(this)
+        }
+
+        public async DeleteTranscript(userID: string): Promise<DeleteTranscriptResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("DELETE", `/transcript/${encodeURIComponent(userID)}`)
+            return await resp.json() as DeleteTranscriptResponse
+        }
+
+        public async GetTranscript(userID: string): Promise<GetTranscriptResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/transcript/${encodeURIComponent(userID)}`)
+            return await resp.json() as GetTranscriptResponse
+        }
+
+        public async ListAllTranscripts(): Promise<ListTranscriptsResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("GET", `/transcripts`)
+            return await resp.json() as ListTranscriptsResponse
+        }
+
+        public async ParseAndStoreTranscript(params: ParseAndStoreTranscriptRequest): Promise<ParseAndStoreTranscriptResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/parse-and-store-transcript`, JSON.stringify(params))
+            return await resp.json() as ParseAndStoreTranscriptResponse
         }
 
         public async ParseTranscript(params: ParseTranscriptRequest): Promise<ParseTranscriptResponse> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI("POST", `/parse-transcript`, JSON.stringify(params))
             return await resp.json() as ParseTranscriptResponse
+        }
+
+        public async StoreTranscript(params: StoreTranscriptRequest): Promise<StoreTranscriptResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("POST", `/transcript`, JSON.stringify(params))
+            return await resp.json() as StoreTranscriptResponse
+        }
+
+        public async UpdateTranscript(userID: string, params: UpdateTranscriptRequest): Promise<UpdateTranscriptResponse> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI("PUT", `/transcript/${encodeURIComponent(userID)}`, JSON.stringify(params))
+            return await resp.json() as UpdateTranscriptResponse
         }
     }
 }
