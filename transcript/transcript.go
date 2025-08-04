@@ -531,44 +531,82 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 			if gradeMatch != "" {
 				debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - Found grade '%s' with simple pattern\n", code, gradeMatch))
 				
-				// --- LANGUAGE-BASED CREDIT EXTRACTION ---
-				// Look for language (Tr or İng.) followed by a number (possibly stuck together)
-				creditPattern := regexp.MustCompile(`(Tr|İng\.)\s*([0-9]+\.?[0-9]*)`)
-				creditMatch := creditPattern.FindStringSubmatch(courseText)
+				// --- UK COLUMN CREDIT EXTRACTION ---
+				// Look for the UK column value in the table structure
+				// Pattern: language followed by numbers (T, U, UK, AKTS columns)
+				// Format: İng.32488 or Tr20020 (language + numbers stuck together)
+				ukCreditPattern := regexp.MustCompile(`(Tr|İng\.)(\d{1})(\d{1})(\d{1})(\d{1,2})`)
+				ukCreditMatch := ukCreditPattern.FindStringSubmatch(courseText)
 				var credits string
-				if creditMatch != nil && len(creditMatch) >= 3 {
-					// Extract the first digit from the number after the language as the credit value
-					fullNumber := creditMatch[2]
-					if len(fullNumber) > 0 {
+				if ukCreditMatch != nil && len(ukCreditMatch) >= 6 {
+					// Extract the UK column value (4th capture group)
+					ukValue := ukCreditMatch[4]
+					if len(ukValue) > 0 {
 						// Check if this is a Turkish course that should have 0 credits
 						// ATA and TUR courses typically have 0 credits
 						if strings.HasPrefix(code, "ATA ") || strings.HasPrefix(code, "TUR ") {
 							credits = "0"
 							debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - Turkish course (ATA/TUR) detected, setting credits to '0'\n", code))
-						} else if strings.Contains(courseText, "Tr") {
-							// Other Turkish courses: use first digit (including 0 for 0-credit courses)
-							credits = string(fullNumber[0])
 						} else {
-							// Non-Turkish courses: find first non-zero digit, or use first digit if all are zero
-							foundNonZero := false
-							for _, char := range fullNumber {
-								if char >= '1' && char <= '9' {
-									credits = string(char)
-									foundNonZero = true
-									break
+							// For all other courses, use the UK value as credits
+							// Clean up the number to ensure it's valid
+							cleanNumber := regexp.MustCompile(`[^0-9.]`).ReplaceAllString(ukValue, "")
+							if cleanNumber == "" || cleanNumber == "." {
+								credits = "0"
+							} else {
+								// Validate that it's a reasonable credit value (0-10 range)
+								if f, err := strconv.ParseFloat(cleanNumber, 64); err == nil && f >= 0 && f <= 10 {
+									credits = cleanNumber
+								} else {
+									// If the UK value is not valid, try to extract a reasonable credit value
+									// Look for common credit patterns (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+									creditValuePattern := regexp.MustCompile(`([0-9]|10)`)
+									if match := creditValuePattern.FindString(cleanNumber); match != "" {
+										credits = match
+									} else {
+										credits = "0"
+									}
 								}
-							}
-							if !foundNonZero {
-								credits = string(fullNumber[0])
 							}
 						}
 					} else {
 						credits = "0"
 					}
-					debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - Found full number: '%s', extracted credits: '%s'\n", code, fullNumber, credits))
+					debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - Found UK value: '%s', extracted credits: '%s'\n", code, ukValue, credits))
 				} else {
-					credits = "0"
-					debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - No credits found with language pattern, defaulting to '0'\n", code))
+					// Fallback to old pattern if UK pattern doesn't match
+					creditPattern := regexp.MustCompile(`(Tr|İng\.)\s*([0-9]+\.?[0-9]*)`)
+					creditMatch := creditPattern.FindStringSubmatch(courseText)
+					if creditMatch != nil && len(creditMatch) >= 3 {
+						fullNumber := creditMatch[2]
+						if len(fullNumber) > 0 {
+							if strings.HasPrefix(code, "ATA ") || strings.HasPrefix(code, "TUR ") {
+								credits = "0"
+							} else {
+								cleanNumber := regexp.MustCompile(`[^0-9.]`).ReplaceAllString(fullNumber, "")
+								if cleanNumber == "" || cleanNumber == "." {
+									credits = "0"
+								} else {
+									if f, err := strconv.ParseFloat(cleanNumber, 64); err == nil && f >= 0 && f <= 10 {
+										credits = cleanNumber
+									} else {
+										creditValuePattern := regexp.MustCompile(`([0-9]|10)`)
+										if match := creditValuePattern.FindString(cleanNumber); match != "" {
+											credits = match
+										} else {
+											credits = "0"
+										}
+									}
+								}
+							}
+						} else {
+							credits = "0"
+						}
+						debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - Fallback: Found full number: '%s', extracted credits: '%s'\n", code, fullNumber, credits))
+					} else {
+						credits = "0"
+						debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - No credits found with any pattern, defaulting to '0'\n", code))
+					}
 				}
 				
 				// Try to extract course name (everything before the language code)

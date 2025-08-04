@@ -1,0 +1,17 @@
+{
+  "name": "foritu-backend",
+  "version": "1.0.0",
+  "description": "Foritu Transcript Service - Go-based API service for parsing PDF transcripts",
+  "scripts": {
+    "generate": "encore gen client foritu-h2ai --output=./client.ts"
+  },
+  "keywords": [
+    "encore",
+    "go",
+    "api",
+    "transcript",
+    "pdf-parser"
+  ],
+  "author": "",
+  "license": "ISC"
+} 
