@@ -531,11 +531,12 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 			if gradeMatch != "" {
 				debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - Found grade '%s' with simple pattern\n", code, gradeMatch))
 				
-				// --- UK COLUMN CREDIT EXTRACTION ---
+						// --- UK COLUMN CREDIT EXTRACTION ---
 				// Look for the UK column value in the table structure
 				// Pattern: language followed by numbers (T, U, UK, AKTS columns)
 				// Format: İng.32488 or Tr20020 (language + numbers stuck together)
-				ukCreditPattern := regexp.MustCompile(`(Tr|İng\.)(\d{1})(\d{1})(\d{1})(\d{1,2})`)
+				// UK column is the 3rd number group (4th capture group), can be decimal like 1.5
+				ukCreditPattern := regexp.MustCompile(`(Tr|İng\.)(\d)(\d)(\d(?:\.\d)?)(\d+(?:\.\d+)?)`)
 				ukCreditMatch := ukCreditPattern.FindStringSubmatch(courseText)
 				var credits string
 				if ukCreditMatch != nil && len(ukCreditMatch) >= 6 {
@@ -548,29 +549,13 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 							credits = "0"
 							debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - Turkish course (ATA/TUR) detected, setting credits to '0'\n", code))
 						} else {
-							// For all other courses, use the UK value as credits
-							// Clean up the number to ensure it's valid
-							cleanNumber := regexp.MustCompile(`[^0-9.]`).ReplaceAllString(ukValue, "")
-							if cleanNumber == "" || cleanNumber == "." {
-								credits = "0"
+							// For all other courses, if ukValue has a point, use as is; if not, take only the first digit
+							if strings.Contains(ukValue, ".") {
+								credits = ukValue
 							} else {
-								// Validate that it's a reasonable credit value (0-10 range)
-								if f, err := strconv.ParseFloat(cleanNumber, 64); err == nil && f >= 0 && f <= 10 {
-									credits = cleanNumber
-								} else {
-									// If the UK value is not valid, try to extract a reasonable credit value
-									// Look for common credit patterns (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-									creditValuePattern := regexp.MustCompile(`([0-9]|10)`)
-									if match := creditValuePattern.FindString(cleanNumber); match != "" {
-										credits = match
-									} else {
-										credits = "0"
-									}
-								}
+								credits = string(ukValue[0])
 							}
 						}
-					} else {
-						credits = "0"
 					}
 					debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - Found UK value: '%s', extracted credits: '%s'\n", code, ukValue, credits))
 				} else {
