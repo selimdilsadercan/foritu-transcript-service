@@ -357,6 +357,18 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 			courseMatches = courseCodePattern.FindAllStringIndex(cleanedText, -1)
 		}
 		
+		// If still no matches, try searching in the raw semester text directly
+		// This handles cases where the text is not properly split by lines
+		if len(courseMatches) == 0 {
+			debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - No course matches in cleaned text, trying raw semester text\n", semester))
+			courseCodePattern = regexp.MustCompile(`([A-Z]{3}\s+\d{3}[A-Z]?)`)
+			courseMatches = courseCodePattern.FindAllStringIndex(semesterText, -1)
+			if len(courseMatches) > 0 {
+				debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Found %d course matches in raw semester text\n", semester, len(courseMatches)))
+				cleanedText = semesterText // Use raw text for processing
+			}
+		}
+		
 		// For Yaz Okulu semesters, if still no matches, try searching in the raw text
 		usingRawText := false
 		if len(courseMatches) == 0 && isYazOkulu {
@@ -368,17 +380,23 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 			if len(courseMatches) > 0 {
 				usingRawText = true
 			}
-			
-			// If still no matches, try a more flexible pattern for Yaz Okulu
-			if len(courseMatches) == 0 {
-				debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Trying more flexible pattern for Yaz Okulu\n", semester))
-				// Try a more flexible pattern that might catch different formats
-				flexiblePattern := regexp.MustCompile(`([A-Z]{2,4}\s+\d{2,4}[A-Z]?)`)
-				courseMatches = flexiblePattern.FindAllStringIndex(semesterText, -1)
-				debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Found %d course matches with flexible pattern\n", semester, len(courseMatches)))
-				if len(courseMatches) > 0 {
-					usingRawText = true
-				}
+		}
+		
+		// If we found course matches in raw semester text, use raw text for processing
+		if len(courseMatches) > 0 && cleanedText == semesterText {
+			usingRawText = true
+			debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Using raw text for processing since course matches were found in raw text\n", semester))
+		}
+		
+		// If still no matches, try a more flexible pattern for Yaz Okulu
+		if len(courseMatches) == 0 {
+			debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Trying more flexible pattern for Yaz Okulu\n", semester))
+			// Try a more flexible pattern that might catch different formats
+			flexiblePattern := regexp.MustCompile(`([A-Z]{2,4}\s+\d{2,4}[A-Z]?)`)
+			courseMatches = flexiblePattern.FindAllStringIndex(semesterText, -1)
+			debugInfo.WriteString(fmt.Sprintf("DEBUG: Semester '%s' - Found %d course matches with flexible pattern\n", semester, len(courseMatches)))
+			if len(courseMatches) > 0 {
+				usingRawText = true
 			}
 		}
 		
@@ -518,7 +536,7 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 		// Look for the language pattern followed by numbers, allowing for newlines and flexible spacing
 		// Pattern: Language + T U UK AKTS Grade Points Comment
 		// Also handle garbled versions of the language patterns
-		languageDataPattern := regexp.MustCompile(`(Tr|İng\.|Tr|İng)\s+(\d+)\s+(\d+)\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s+(AA|BA\+?|BB\+?|CB\+?|CC\+?|DC\+?|DD\+?|BA|BB|CB|CC|DC|DD|FF|VF|BL|SG|DK|KL|--)\s+(\d+\.?\d*)(?:\s+([A-Z]{2}))?`)
+		languageDataPattern := regexp.MustCompile(`(Tr|İng\.|Tr|İng)\s*(\d+)\s*(\d+)\s*(\d+\.?\d*)\s*(\d+\.?\d*)\s*(AA|BA\+?|BB\+?|CB\+?|CC\+?|DC\+?|DD\+?|BA|BB|CB|CC|DC|DD|FF|VF|BL|SG|DK|KL|--)\s*(\d+\.?\d*)(?:\s*([A-Z]{2}|--))?`)
 		languageDataMatch := languageDataPattern.FindStringSubmatch(courseText)
 		
 		debugInfo.WriteString(fmt.Sprintf("DEBUG: Course '%s' - Language data match: %v\n", code, languageDataMatch != nil))
@@ -1008,28 +1026,28 @@ func createGenericCourses(text string) []TranscriptCourse {
 			}
 		}
 		
-						// Check if this is a Turkish or English course and correct the course code
-				// For Turkish courses (marked with "Tr") and English courses (marked with "İng."), remove the letter suffix from course code
-				finalCode := code
-				finalName := name
-				if strings.Contains(courseText, "Tr") || strings.Contains(courseText, "İng.") {
-					// Extract department code and course number without letter suffix
-					codeParts := strings.Fields(code)
-					if len(codeParts) >= 2 {
-						deptCode := codeParts[0]
-						courseNum := codeParts[1]
-						// Remove letter suffix from course number for Turkish and English courses
-						courseNumPattern := regexp.MustCompile(`^\d{3}`)
-						if match := courseNumPattern.FindString(courseNum); match != "" {
-							finalCode = deptCode + " " + match
-							// Add the removed letter to the beginning of the course name
-							if len(courseNum) > 3 {
-								removedLetter := courseNum[3:4] // Get the letter after the 3 digits
-								finalName = removedLetter + name
-							}
-						}
+		// Check if this is a Turkish or English course and correct the course code
+		// For Turkish courses (marked with "Tr") and English courses (marked with "İng."), remove the letter suffix from course code
+		finalCode := code
+		finalName := name
+		if strings.Contains(courseText, "Tr") || strings.Contains(courseText, "İng.") {
+			// Extract department code and course number without letter suffix
+			codeParts := strings.Fields(code)
+			if len(codeParts) >= 2 {
+				deptCode := codeParts[0]
+				courseNum := codeParts[1]
+				// Remove letter suffix from course number for Turkish and English courses
+				courseNumPattern := regexp.MustCompile(`^\d{3}`)
+				if match := courseNumPattern.FindString(courseNum); match != "" {
+					finalCode = deptCode + " " + match
+					// Add the removed letter to the beginning of the course name
+					if len(courseNum) > 3 {
+						removedLetter := courseNum[3:4] // Get the letter after the 3 digits
+						finalName = removedLetter + name
 					}
 				}
+			}
+		}
 		
 		// Check if this is a laboratory course and add 'L' suffix to course code
 		if strings.Contains(strings.ToLower(name), "laboratory") || strings.Contains(strings.ToLower(name), "lab") {
