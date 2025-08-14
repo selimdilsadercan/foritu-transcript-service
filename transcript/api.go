@@ -189,6 +189,7 @@ func ParseAndStoreTranscript(ctx context.Context, req *ParseAndStoreTranscriptRe
 			Name:     tc.Name,
 			Credits:  tc.Credits,
 			Grade:    tc.Grade,
+			LessonID: tc.LessonID,
 		})
 	}
 

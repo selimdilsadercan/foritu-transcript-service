@@ -15,11 +15,12 @@ import (
 
 // TranscriptCourse represents a single course in the transcript
 type TranscriptCourse struct {
-	Semester string `json:"semester"`
-	Code     string `json:"code"`
-	Name     string `json:"name"`
-	Credits  string `json:"credits"`
-	Grade    string `json:"grade"`
+	Semester  string `json:"semester"`
+	Code      string `json:"code"`
+	Name      string `json:"name"`
+	Credits   string `json:"credits"`
+	Grade     string `json:"grade"`
+	LessonID  string `json:"lesson_id,omitempty"`
 }
 
 // ParseTranscriptRequest represents the request body
@@ -704,6 +705,7 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 					Name:     finalName,
 					Credits:  credits,
 					Grade:    gradeMatch,
+					LessonID: "",
 				})
 				continue
 			}
@@ -794,6 +796,7 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 					Name:     finalName,
 					Credits:  credits,
 					Grade:    grade,
+					LessonID: "",
 				})
 			} else {
 				// Try a simpler approach - just find the language and then look for numbers
@@ -951,6 +954,7 @@ func parseTranscriptText(text string) ([]TranscriptCourse, string, error) {
 							Name:     name,
 							Credits:  credits,
 							Grade:    grade,
+							LessonID: "",
 						})
 					}
 				}
@@ -1063,6 +1067,7 @@ func createGenericCourses(text string) []TranscriptCourse {
 			Name:     finalName,
 			Credits:  credits,
 			Grade:    grade,
+			LessonID: "",
 		})
 	}
 	

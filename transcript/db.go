@@ -16,6 +16,7 @@ type Course struct {
 	Name     string `json:"name"`
 	Credits  string `json:"credits"`
 	Grade    string `json:"grade"`
+	LessonID string `json:"lesson_id,omitempty"`
 }
 
 // Transcript represents a user's transcript with courses
